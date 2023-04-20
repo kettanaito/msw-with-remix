@@ -1,18 +1,12 @@
+/**
+ * Absolutely phenomenal setup from @cliffordfajardo.
+ * @see https://github.com/cliffordfajardo/remix-msw-node-with-playwright/blob/33d97bdaf40d091dcece53cc4a4fd7cb43c4a94a/app/msw-server.ts
+ */
 import { type RequestHandler } from 'msw'
 import { type SetupServer, setupServer } from 'msw/node'
 
 declare global {
   var __MSW_SERVER: SetupServer | undefined
-}
-
-export function startApiMocks(handlers: Array<RequestHandler>) {
-  const persistedServer = globalThis.__MSW_SERVER
-
-  if (typeof persistedServer !== 'undefined') {
-    restart(persistedServer, handlers)
-  } else {
-    start(setup(handlers))
-  }
 }
 
 function setup(handlers: Array<RequestHandler>) {
@@ -30,6 +24,15 @@ function start(server: SetupServer) {
 
 function restart(server: SetupServer, handlers: Array<RequestHandler>) {
   server.close()
-  const nextServer = setup(handlers)
-  start(nextServer)
+  start(setup(handlers))
+}
+
+export function startApiMocks(handlers: Array<RequestHandler>) {
+  const persistedServer = globalThis.__MSW_SERVER
+
+  if (typeof persistedServer !== 'undefined') {
+    restart(persistedServer, handlers)
+  } else {
+    start(setup(handlers))
+  }
 }
